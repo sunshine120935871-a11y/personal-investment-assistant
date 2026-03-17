@@ -1,5 +1,5 @@
 import { Outlet, NavLink, useNavigate } from "react-router-dom";
-import { Home, MessageCircle, User } from "lucide-react";
+import { Home, MessageSquare, User } from "lucide-react";
 import { useEffect } from "react";
 import { isLoggedIn } from "../lib/data";
 
@@ -14,7 +14,7 @@ export function Layout() {
 
   const navItems = [
     { to: "/", icon: Home, label: "首页" },
-    { to: "/consultation", icon: MessageCircle, label: "咨询" },
+    { to: "/consultation", icon: MessageSquare, label: "咨询" },
     { to: "/profile", icon: User, label: "我的" },
   ];
 
@@ -25,7 +25,7 @@ export function Layout() {
       </div>
 
       {/* Bottom navigation */}
-      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-background/80 backdrop-blur-md border-t border-border z-50">
+      <nav className="fixed bottom-0 left-1/2 -translate-x-1/2 w-full max-w-[430px] bg-background border-t border-border z-50">
         <div className="flex items-center justify-around h-16">
           {navItems.map((item) => (
             <NavLink
@@ -33,8 +33,8 @@ export function Layout() {
               to={item.to}
               end={item.to === "/"}
               className={({ isActive }) =>
-                `flex flex-col items-center gap-1 px-4 py-1 ${
-                  isActive ? "text-primary" : "text-muted-foreground"
+                `flex flex-col items-center gap-1 px-4 py-1 transition-colors ${
+                  isActive ? "text-blue-500" : "text-muted-foreground"
                 }`
               }
             >

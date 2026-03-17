@@ -1,15 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Search, Bookmark, BookmarkCheck } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { Input } from "../components/ui/input";
 import { Badge } from "../components/ui/badge";
-import { Avatar, AvatarFallback } from "../components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "../components/ui/avatar";
 import {
   getFollowedCompanies,
   getAllPosts,
   toggleSavePost,
   addCompanies,
+  formatRelativeTime,
   type Post,
 } from "../lib/data";
 import { toast } from "sonner";
@@ -56,53 +56,73 @@ function Onboarding({ onDone }: { onDone: () => void }) {
 
 function PostCard({ post, onToggleSave }: { post: Post; onToggleSave: (id: string) => void }) {
   const tagColors: Record<string, string> = {
-    "财报解读": "bg-blue-100 text-blue-700",
-    "新产品跟踪": "bg-green-100 text-green-700",
-    "风险提示": "bg-red-100 text-red-700",
-    "公司动态": "bg-purple-100 text-purple-700",
-    "行业观察": "bg-amber-100 text-amber-700",
+    "财报解读": "bg-blue-50 text-blue-600 border border-blue-200",
+    "新产品跟踪": "bg-green-50 text-green-600 border border-green-200",
+    "风险提示": "bg-red-50 text-red-600 border border-red-200",
+    "公司动态": "bg-purple-50 text-purple-600 border border-purple-200",
+    "行业观察": "bg-amber-50 text-amber-600 border border-amber-200",
+    "公司概览": "bg-gray-50 text-gray-600 border border-gray-200",
   };
 
   return (
-    <div className="p-4 border-b border-border">
-      <Link to={`/post/${post.id}`} className="block">
-        <div className="flex items-center gap-3 mb-2">
-          <Avatar className="h-8 w-8">
-            <AvatarFallback className="text-xs bg-primary/10">{post.companyName[0]}</AvatarFallback>
-          </Avatar>
-          <div className="flex-1 min-w-0">
-            <span className="text-sm font-medium">{post.companyName}</span>
-            <span className="text-xs text-muted-foreground ml-2">
-              {new Date(post.createdAt).toLocaleDateString("zh-CN")}
-            </span>
+    <div className="px-4 py-5 border-b border-border">
+      <div className="flex items-start gap-4">
+        {/* Avatar */}
+        <Avatar className="h-12 w-12 shrink-0 mt-0.5">
+          {post.companyAvatar ? (
+            <AvatarImage src={post.companyAvatar} alt={post.companyName} className="object-cover" />
+          ) : null}
+          <AvatarFallback className="text-sm bg-primary/10 font-medium">
+            {post.companyName[0]}
+          </AvatarFallback>
+        </Avatar>
+
+        {/* Content */}
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center justify-between mb-1.5">
+            <div className="flex items-center gap-2">
+              <span className="text-[15px] font-semibold">{post.companyName}</span>
+              <span className="text-xs text-muted-foreground">
+                {formatRelativeTime(post.createdAt)}
+              </span>
+            </div>
+            <button
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onToggleSave(post.id);
+              }}
+              className="p-1 -mr-1 text-muted-foreground hover:text-foreground"
+            >
+              {post.saved ? (
+                <BookmarkCheck className="h-5 w-5 text-blue-500" />
+              ) : (
+                <Bookmark className="h-5 w-5" />
+              )}
+            </button>
           </div>
+
+          <Link to={`/post/${post.id}`} className="block">
+            <h3 className="font-bold text-[15px] leading-snug mb-1.5">{post.title}</h3>
+            <p className="text-sm text-muted-foreground leading-relaxed line-clamp-2 mb-2.5">
+              {post.summary}
+            </p>
+          </Link>
+
+          <Badge
+            variant="secondary"
+            className={`text-xs px-2.5 py-0.5 rounded-md font-normal ${tagColors[post.tag] || "bg-gray-50 text-gray-600 border border-gray-200"}`}
+          >
+            {post.tag}
+          </Badge>
         </div>
-        <h3 className="font-semibold text-[15px] leading-snug mb-1">{post.title}</h3>
-        <p className="text-sm text-muted-foreground line-clamp-2">{post.summary}</p>
-      </Link>
-      <div className="flex items-center justify-between mt-2">
-        <Badge variant="secondary" className={`text-xs border-0 ${tagColors[post.tag] || ""}`}>
-          {post.tag}
-        </Badge>
-        <button
-          onClick={(e) => {
-            e.preventDefault();
-            onToggleSave(post.id);
-          }}
-          className="p-1 text-muted-foreground hover:text-foreground"
-        >
-          {post.saved ? (
-            <BookmarkCheck className="h-4 w-4 text-primary" />
-          ) : (
-            <Bookmark className="h-4 w-4" />
-          )}
-        </button>
       </div>
     </div>
   );
 }
 
 export function Home() {
+  const navigate = useNavigate();
   const [companies, setCompanies] = useState(getFollowedCompanies());
   const [posts, setPosts] = useState(getAllPosts());
   const [showOnboarding, setShowOnboarding] = useState(companies.length === 0);
@@ -124,12 +144,15 @@ export function Home() {
 
   return (
     <div className="pb-16">
-      {/* Header */}
-      <div className="sticky top-0 z-10 bg-background/80 backdrop-blur-md px-4 py-3 flex items-center justify-between border-b border-border">
-        <h1 className="text-lg font-bold">首页</h1>
-        <Link to="/search" className="p-2 -mr-2 text-muted-foreground hover:text-foreground">
-          <Search className="h-5 w-5" />
-        </Link>
+      {/* Search bar */}
+      <div className="sticky top-0 z-10 bg-background px-4 py-3 border-b border-border">
+        <button
+          onClick={() => navigate("/search")}
+          className="w-full flex items-center gap-2.5 h-10 px-4 rounded-lg bg-muted text-muted-foreground text-sm"
+        >
+          <Search className="h-4 w-4 shrink-0" />
+          <span>搜索公司或内容</span>
+        </button>
       </div>
 
       {/* Feed */}

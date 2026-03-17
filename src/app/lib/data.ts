@@ -43,62 +43,78 @@ export interface UserProfile {
 
 const TAG_LIST = ["财报解读", "新产品跟踪", "风险提示", "公司动态", "行业观察"];
 
+// Known company avatars mapping
+const COMPANY_AVATARS: Record<string, string> = {
+  "特斯拉": "/avatars/tesla.jpg",
+  "Tesla": "/avatars/tesla.jpg",
+};
+
 const MASTERS: Master[] = [
   {
     id: "buffett",
     name: "巴菲特",
-    avatar: "",
-    style: "重商业模式、护城河、长期主义、管理层质量",
+    avatar: "/avatars/buffett.jpg",
+    style: "价值投资大师，关注商业模式、护城河和长期主义",
     description: "股神巴菲特，价值投资的代表人物",
   },
   {
     id: "munger",
     name: "芒格",
-    avatar: "",
-    style: "重多元思维模型、理性决策、逆向思考",
+    avatar: "/avatars/munger.jpg",
+    style: "多元思维模型倡导者，强调理性决策",
     description: "查理·芒格，巴菲特的黄金搭档",
   },
   {
     id: "duan",
     name: "段永平",
-    avatar: "",
-    style: "重商业常识、长期持有、好生意好价格",
+    avatar: "/avatars/duan.jpg",
+    style: "商业常识派，关注好生意好价格",
     description: "步步高创始人，知名价值投资者",
   },
   {
     id: "li",
     name: "李录",
-    avatar: "",
-    style: "重价值发现、时代机会、中国企业认知",
+    avatar: "/avatars/li.jpg",
+    style: "价值发现专家，深耕中国企业研究",
     description: "喜马拉雅资本创始人",
   },
 ];
 
+// Relative time formatting
+export function formatRelativeTime(dateStr: string): string {
+  const now = Date.now();
+  const date = new Date(dateStr).getTime();
+  const diff = now - date;
+  const minutes = Math.floor(diff / 60000);
+  const hours = Math.floor(diff / 3600000);
+  const days = Math.floor(diff / 86400000);
+
+  if (minutes < 1) return "刚刚";
+  if (minutes < 60) return `${minutes}分钟前`;
+  if (hours < 24) return `${hours}小时前`;
+  if (days < 30) return `${days}天前`;
+  return new Date(dateStr).toLocaleDateString("zh-CN");
+}
+
 function generateInitialPosts(company: Company): Post[] {
   const templates = [
     {
-      title: `${company.name}公司概览：核心业务与竞争优势分析`,
-      summary: `全面梳理${company.name}的商业模式、核心竞争力和市场地位，帮助投资者建立对公司的基础认知框架。`,
+      title: `${company.name}：业务模式与核心竞争力分析`,
+      summary: `深度解读${company.name}的商业模式、市场地位和核心竞争优势`,
       content: `## 公司简介\n\n${company.name}是行业内领先的企业之一，拥有强大的品牌影响力和市场份额。\n\n## 核心业务\n\n公司的核心业务涵盖多个领域，具有较强的协同效应和增长潜力。\n\n## 竞争优势\n\n- 品牌护城河：长期积累的品牌价值\n- 规模效应：领先的市场份额带来成本优势\n- 技术壁垒：持续的研发投入构建技术护城河\n\n## 投资者关注点\n\n投资者应重点关注公司的营收增长趋势、利润率变化以及现金流状况。\n\n*仅供参考，不构成投资建议*`,
-      tag: "公司动态",
+      tag: "公司概览",
     },
     {
-      title: `${company.name}最新财报解读：关键数据与趋势分析`,
-      summary: `深入解读${company.name}最新季度财务报告，分析营收、利润、现金流等核心指标的变化趋势。`,
-      content: `## 财报概要\n\n${company.name}最新财报显示，公司整体经营保持稳健，多项核心指标达到或超出市场预期。\n\n## 关键数据\n\n- 营收：同比保持增长态势\n- 净利润：利润率有所改善\n- 现金流：经营性现金流充裕\n\n## 趋势分析\n\n从长期趋势来看，公司的营收结构持续优化，高毛利业务占比提升。\n\n## 风险提示\n\n需关注宏观经济环境变化对公司业务的潜在影响。\n\n*仅供参考，不构成投资建议*`,
+      title: `${company.name}最新季度财报：营收增长超预期`,
+      summary: `营收同比增长15%，净利润率提升至18%，展现强劲盈利能力`,
+      content: `## 财报概要\n\n${company.name}最新财报显示，公司整体经营保持稳健，多项核心指标达到或超出市场预期。\n\n## 关键数据\n\n- 营收：同比增长15%\n- 净利润：利润率提升至18%\n- 现金流：经营性现金流充裕\n\n## 趋势分析\n\n从长期趋势来看，公司的营收结构持续优化，高毛利业务占比提升。\n\n## 风险提示\n\n需关注宏观经济环境变化对公司业务的潜在影响。\n\n*仅供参考，不构成投资建议*`,
       tag: "财报解读",
     },
     {
-      title: `${company.name}近期重要动态汇总`,
-      summary: `汇总${company.name}近期的重要业务进展、战略调整和市场动态。`,
-      content: `## 近期动态\n\n${company.name}近期在业务拓展和产品创新方面有多项重要进展。\n\n## 战略调整\n\n公司持续优化业务布局，聚焦核心赛道，提升运营效率。\n\n## 市场反应\n\n市场对公司近期的战略举措总体反应积极。\n\n*仅供参考，不构成投资建议*`,
-      tag: "公司动态",
-    },
-    {
-      title: `${company.name}核心风险提示与关注要点`,
-      summary: `梳理投资${company.name}需要关注的潜在风险因素，帮助投资者做出更审慎的判断。`,
-      content: `## 主要风险\n\n### 行业风险\n- 行业竞争加剧\n- 政策监管变化\n\n### 经营风险\n- 新业务拓展的不确定性\n- 核心人才流失风险\n\n### 市场风险\n- 宏观经济波动影响\n- 汇率变动风险\n\n## 投资建议\n\n建议投资者综合评估以上风险因素，结合自身风险承受能力做出投资决策。\n\n*仅供参考，不构成投资建议*`,
-      tag: "风险提示",
+      title: `${company.name}发布新产品线，拓展市场边界`,
+      summary: `新产品瞄准细分市场，预计将带来新的增长动力`,
+      content: `## 新产品发布\n\n${company.name}近期发布了全新产品线，瞄准细分市场需求。\n\n## 市场机遇\n\n新产品定位精准，填补了市场空白，有望成为公司新的增长引擎。\n\n## 竞争分析\n\n在该细分领域，公司具有先发优势和技术积累。\n\n*仅供参考，不构成投资建议*`,
+      tag: "新产品跟踪",
     },
   ];
 
@@ -163,7 +179,7 @@ export function addCompanies(names: string[]): Company[] {
   const newCompanies: Company[] = names.map((name, i) => ({
     id: `company-${Date.now()}-${i}`,
     name: name.trim(),
-    avatar: "",
+    avatar: COMPANY_AVATARS[name.trim()] || "",
     description: "",
   }));
   const all = [...existing, ...newCompanies];

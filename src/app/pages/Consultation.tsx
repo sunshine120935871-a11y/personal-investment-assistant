@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Send } from "lucide-react";
 import { Button } from "../components/ui/button";
-import { Avatar, AvatarFallback } from "../components/ui/avatar";
+import { Avatar, AvatarImage, AvatarFallback } from "../components/ui/avatar";
 import {
   getAllMasters,
   getFollowedMasters,
@@ -32,7 +32,7 @@ function MasterOnboarding({ onDone }: { onDone: () => void }) {
     <div className="flex flex-col items-center justify-center min-h-[60dvh] px-6">
       <h2 className="text-xl font-bold mb-2">选择投资大师</h2>
       <p className="text-muted-foreground text-sm mb-6 text-center">
-        选择你感兴趣的投资大师，与他们的 AI Agent 对话
+        选择您喜欢的投资理念，开始咨询之旅
       </p>
       <div className="w-full space-y-3">
         {masters.map((master) => (
@@ -45,27 +45,30 @@ function MasterOnboarding({ onDone }: { onDone: () => void }) {
                   : [...prev, master.id]
               )
             }
-            className={`w-full p-4 rounded-xl border-2 text-left transition-colors ${
+            className={`w-full p-4 rounded-xl border text-left transition-colors ${
               selected.includes(master.id)
-                ? "border-primary bg-primary/5"
+                ? "border-blue-500 bg-blue-50/50"
                 : "border-border hover:border-muted-foreground/30"
             }`}
           >
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-4">
               <Avatar className="h-12 w-12">
+                {master.avatar ? (
+                  <AvatarImage src={master.avatar} alt={master.name} className="object-cover" />
+                ) : null}
                 <AvatarFallback className="bg-primary/10 text-lg font-bold">
                   {master.name[0]}
                 </AvatarFallback>
               </Avatar>
               <div>
-                <div className="font-semibold">{master.name}</div>
-                <div className="text-xs text-muted-foreground">{master.style}</div>
+                <div className="font-semibold text-[15px]">{master.name}</div>
+                <div className="text-sm text-muted-foreground mt-0.5">{master.style}</div>
               </div>
             </div>
           </button>
         ))}
       </div>
-      <Button className="w-full mt-6 h-12 text-base" onClick={handleSubmit}>
+      <Button className="w-full mt-6 h-12 text-base bg-foreground text-background hover:bg-foreground/90" onClick={handleSubmit}>
         开始咨询
       </Button>
     </div>
@@ -153,6 +156,9 @@ export function Consultation() {
           >
             {msg.role === "assistant" && (
               <Avatar className="h-8 w-8 shrink-0">
+                {activeMaster?.avatar ? (
+                  <AvatarImage src={activeMaster.avatar} alt={activeMaster.name} className="object-cover" />
+                ) : null}
                 <AvatarFallback className="bg-primary/10 text-xs">
                   {activeMaster?.name[0]}
                 </AvatarFallback>
@@ -172,6 +178,9 @@ export function Consultation() {
         {isTyping && (
           <div className="flex gap-2">
             <Avatar className="h-8 w-8 shrink-0">
+              {activeMaster?.avatar ? (
+                <AvatarImage src={activeMaster.avatar} alt={activeMaster?.name} className="object-cover" />
+              ) : null}
               <AvatarFallback className="bg-primary/10 text-xs">
                 {activeMaster?.name[0]}
               </AvatarFallback>
