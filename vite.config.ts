@@ -5,6 +5,7 @@ import path from "path";
 import fs from "fs";
 
 export default defineConfig({
+  base: "/personal-investment-assistant/",
   plugins: [
     react(),
     tailwindcss(),

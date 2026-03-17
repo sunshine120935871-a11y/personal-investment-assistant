@@ -7,6 +7,8 @@ import { Consultation } from "./pages/Consultation";
 import { Profile } from "./pages/Profile";
 import { Layout } from "./components/Layout";
 
+const basename = import.meta.env.BASE_URL.replace(/\/$/, "");
+
 export const router = createBrowserRouter([
   {
     path: "/login",
@@ -23,4 +25,4 @@ export const router = createBrowserRouter([
       { path: "profile", element: <Profile /> },
     ],
   },
-]);
+], { basename });
